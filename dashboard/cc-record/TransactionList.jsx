@@ -47,7 +47,7 @@ const TransactionList = () => {
       isYesterday: true,
     },
     { date: "02 / 02 / 2025", amount: "1,210.00", trend: "decrease" },
-    { date: "02 / 01 / 2025", amount: "1,455.00" },
+    { date: "02 / 01 / 2025", amount: "1,455.00", trend: "increase" },
   ];
 
   return (
