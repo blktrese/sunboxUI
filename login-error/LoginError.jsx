@@ -4,17 +4,13 @@ import ErrorMessage from "./ErrorMessage";
 import ContactInfo from "./ContactInfo";
 import ReturnButton from "./ReturnButton";
 
-const LoginError = () => {
+const LoginError = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <View style={styles.content}>
         <ErrorMessage />
         <ContactInfo />
-        <ReturnButton
-          onPress={() => {
-            /* Handle return to login */
-          }}
-        />
+        <ReturnButton onPress={() => navigation.navigate("Login")} />
       </View>
     </View>
   );
