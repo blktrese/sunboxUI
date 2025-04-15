@@ -7,10 +7,17 @@ import {
   TouchableOpacity,
   StyleSheet,
   Linking,
+  Alert,
 } from "react-native";
 
 export const Logo = () => (
-  <Image source={{ uri: "https://cdn.builder.io/api/v1/image/assets/TEMP/f3329c6dc08f571eab6c6dd5601fec60915ba286" }} style={styles.logo} resizeMode="contain" />
+  <Image
+    source={{
+      uri: "https://cdn.builder.io/api/v1/image/assets/TEMP/f3329c6dc08f571eab6c6dd5601fec60915ba286",
+    }}
+    style={styles.logo}
+    resizeMode="contain"
+  />
 );
 
 export const WelcomeText = () => (
@@ -20,46 +27,57 @@ export const WelcomeText = () => (
   </View>
 );
 
-export const LoginForm = () => {
-  const [adminName, setAdminName] = useState("");
-  const [password, setPassword] = useState("");
+export const LoginForm = ({ navigation }) => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
   const handleLogin = () => {
-    // Handle login logic here
-    console.log("Login attempted with:", adminName);
+      if (!email || !password) {
+        // Require input before proceeding
+        return alert("Please enter both email and password.");
+      }
+
+      if (email === "Admin" && password === "123456") {
+        navigation.navigate("Dashboard"); 
+      } else {
+        navigation.navigate("LoginError"); 
+      }
+    };
+
+    return (
+      <>
+        <View style={styles.inputContainer}>
+          <Text style={styles.inputLabel}>Email</Text>
+          <TextInput
+            style={styles.input}
+            value={email}
+            onChangeText={setEmail}
+            placeholder="Enter your email"
+            placeholderTextColor="#CBB7B7"
+            keyboardType="email-address"
+            autoCapitalize="none"
+          />
+        </View>
+
+        <View style={styles.inputContainer}>
+          <Text style={styles.inputLabel}>Password</Text>
+          <TextInput
+            style={styles.input}
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+            placeholder="Enter password"
+            placeholderTextColor="#CBB7B7"
+          />
+        </View>
+
+        <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
+          <Text style={styles.loginButtonText}>Login</Text>
+        </TouchableOpacity>
+      </>
+    );
   };
 
-  return (
-    <>
-      <View style={styles.inputContainer}>
-        <Text style={styles.inputLabel}>Admin Name</Text>
-        <TextInput
-          style={styles.input}
-          value={adminName}
-          onChangeText={setAdminName}
-          placeholder="Enter admin name"
-          placeholderTextColor="#CBB7B7"
-        />
-      </View>
-
-      <View style={styles.inputContainer}>
-        <Text style={styles.inputLabel}>Password</Text>
-        <TextInput
-          style={styles.input}
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-          placeholder="Enter password"
-          placeholderTextColor="#CBB7B7"
-        />
-      </View>
-
-      <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
-        <Text style={styles.loginButtonText}>Login</Text>
-      </TouchableOpacity>
-    </>
-  );
-};
 
 export const FooterText = () => (
   <View style={styles.footerContainer}>
@@ -78,6 +96,7 @@ export const FooterText = () => (
   </View>
 );
 
+// Styles (same as yours)
 const styles = StyleSheet.create({
   logo: {
     width: 162,
