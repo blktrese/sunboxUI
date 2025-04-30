@@ -4,23 +4,39 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import LoginScreen from './login/LoginScreen';
 import LoginError from './loginerror/LoginError';
-import Dashboard from './dashboard/ccrecord/InputDesign';
+// BELOW IS THE ALIAS DASHBOARD !!!
+import InputDesign from './dashboard/ccrecord/InputDesign';
 import { View, StyleSheet } from 'react-native';
+import KLoginScreen from './components/Klogin/KLoginScreen';
 
 const Stack = createNativeStackNavigator();
 
 export default function App() {
-  return (
-    <NavigationContainer>
-      <View style={styles.appContainer}>
-        <Stack.Navigator initialRouteName="Login" screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="Login" component={LoginScreen} />
-          <Stack.Screen name="LoginError" component={LoginError} />
-          <Stack.Screen name="Dashboard" component={Dashboard} />
-        </Stack.Navigator>
-      </View>
-    </NavigationContainer>
-  );
+    return (
+    // <NavigationContainer>
+    //   <View style={styles.appContainer}>
+    //     <Stack.Navigator initialRouteName="Login" screenOptions={{ headerShown: false }}>
+    //       {/* <Stack.Screen name="Login" component={LoginScreen} />
+    //       <Stack.Screen name="LoginError" component={LoginError} /> */}
+    //       <Stack.Screen name="Dashboard" component={InputDesign} />
+    //     </Stack.Navigator>
+    //   </View>
+    // </NavigationContainer>
+
+
+
+ //  RE WRITE
+    // <KLoginScreen/>
+    
+        <NavigationContainer>
+            <View style={styles.appContainer}>
+                <Stack.Navigator initialRouteName="Login" screenOptions={{ headerShown: false }}>
+                <Stack.Screen name="Login" component={KLoginScreen} />
+                <Stack.Screen name="Dashboard" component={InputDesign} />
+                </Stack.Navigator>
+            </View>
+        </NavigationContainer>
+    );
 }
 
 const styles = StyleSheet.create({
