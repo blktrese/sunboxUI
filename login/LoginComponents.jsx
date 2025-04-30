@@ -30,54 +30,71 @@ export const WelcomeText = () => (
 export const LoginForm = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-
+  const [error, setError] = useState('');
+  
+    const users = [
+    { email: 'gem', password: '123456' },
+    { email: 'jazel', password: '123456' },
+    { email: 'bahalakayodyan', password: '123456' },
+  ];
+  
   const handleLogin = () => {
-      if (!email || !password) {
-        // Require input before proceeding
-        return alert("Please enter both email and password.");
-      }
+    if (!email || !password) {
+      setError("Please enter both email and password.");
+      return;
+    }
 
-      if (email === "Admin" && password === "123456") {
-        navigation.navigate("Dashboard"); 
-      } else {
-        navigation.navigate("LoginError"); 
-      }
-    };
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters.");
+      return;
+    }
 
-    return (
-      <>
-        <View style={styles.inputContainer}>
-          <Text style={styles.inputLabel}>Email</Text>
-          <TextInput
-            style={styles.input}
-            value={email}
-            onChangeText={setEmail}
-            placeholder="Enter your email"
-            placeholderTextColor="#CBB7B7"
-            keyboardType="email-address"
-            autoCapitalize="none"
-          />
-        </View>
-
-        <View style={styles.inputContainer}>
-          <Text style={styles.inputLabel}>Password</Text>
-          <TextInput
-            style={styles.input}
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-            placeholder="Enter password"
-            placeholderTextColor="#CBB7B7"
-          />
-        </View>
-
-        <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
-          <Text style={styles.loginButtonText}>Login</Text>
-        </TouchableOpacity>
-      </>
+    const foundUser = users.find(
+      user => user.email.toLowerCase() === email.toLowerCase() && user.password === password
     );
+
+    if (foundUser) {
+      setError('');
+      navigation.navigate("Dashboard", { email: foundUser.email });
+    } else {
+      setError("Incorrect email or password.");
+    }
   };
 
+  return (
+    <>
+      <View style={styles.inputContainer}>
+        <Text style={styles.inputLabel}>Email</Text>
+        <TextInput
+          style={styles.input}
+          value={email}
+          onChangeText={setEmail}
+          placeholder="Enter your email"
+          placeholderTextColor="#CBB7B7"
+          autoCapitalize="none"
+        />
+      </View>
+
+      <View style={styles.inputContainer}>
+        <Text style={styles.inputLabel}>Password</Text>
+        <TextInput
+          style={styles.input}
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry
+          placeholder="Enter password"
+          placeholderTextColor="#CBB7B7"
+        />
+      </View>
+
+      {error ? <Text style={styles.errorText}>{error}</Text> : null}
+
+      <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
+        <Text style={styles.loginButtonText}>Login</Text>
+      </TouchableOpacity>
+    </>
+  );
+};
 
 export const FooterText = () => (
   <View style={styles.footerContainer}>
