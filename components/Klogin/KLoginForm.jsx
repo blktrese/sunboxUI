@@ -1,37 +1,79 @@
+import { useState } from "react";
+import { FIREBASE_AUTH } from "../../FirebaseConfig";
+import { signInWithEmailAndPassword } from "firebase/auth";
 import {
     View,
     Text,
     TextInput,
     TouchableOpacity,
     StyleSheet,
+    ActivityIndicator,
+    KeyboardAvoidingView,
 } from "react-native";
 
 const KLoginForm = () => {
+    const [email, setEmail] = useState("");
+    const [password, setpassword] = useState("");
+    const [loading, setloading] = useState(false);
+    const auth = FIREBASE_AUTH;
+
+    const signIn = async () => {
+        setloading(true);
+        try {
+            const response = await signInWithEmailAndPassword(
+                auth,
+                email,
+                password
+            );
+            console.log(response);
+        } catch (error) {
+            console.log("error");
+            alert("Sign in faied:" + error.message);
+        } finally {
+            setloading(false);
+        }
+    };
+
     return (
         <>
             <View style={styles.inputContainer}>
-                <Text style={styles.inputLabel}>Email</Text>
-                <TextInput
-                    style={styles.input}
-                    // value={email}
-                    placeholder="Enter your email"
-                    placeholderTextColor="#CBB7B7"
-                    autoCapitalize="none"
-                />
+                <KeyboardAvoidingView behavior="padding">
+                    <Text style={styles.inputLabel}>Email</Text>
+                    <TextInput
+                        value={email}
+                        style={styles.input}
+                        placeholder="Enter your email"
+                        placeholderTextColor="#CBB7B7"
+                        autoCapitalize="none"
+                        onChangeText={(text) => setEmail(text)}
+                    />
+                </KeyboardAvoidingView>
             </View>
 
             <View style={styles.inputContainer}>
                 <Text style={styles.inputLabel}>Password</Text>
                 <TextInput
+                    secureTextEntry={true}
+                    value={password}
                     style={styles.input}
-                    // value={password}
                     placeholder="Enter password"
                     placeholderTextColor="#CBB7B7"
+                    autoCapitalize="none"
+                    onChangeText={(text) => setpassword(text)}
                 />
             </View>
-            <TouchableOpacity style={styles.loginButton}>
-                <Text style={styles.loginButtonText}>Login</Text>
-            </TouchableOpacity>
+            {loading ? (
+                <ActivityIndicator size="large" color="#000ff" />
+            ) : (
+                <>
+                    <TouchableOpacity
+                        style={styles.loginButton}
+                        onPress={signIn}
+                    >
+                        <Text style={styles.loginButtonText}>Login</Text>
+                    </TouchableOpacity>
+                </>
+            )}
         </>
     );
 };
@@ -54,6 +96,7 @@ const styles = StyleSheet.create({
         borderColor: "#CBB7B7",
         borderRadius: 9,
         paddingHorizontal: 10,
+        paddingVertical: 6,
         color: "#CBB7B7",
     },
     loginButton: {
