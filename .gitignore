@@ -1,1 +1,41 @@
-node_modules
+# Node modules
+node_modules/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+expo-debug.log
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# IDE-specific files
+.vscode/
+.idea/
+
+# Expo files
+.expo/
+.expo-shared/
+
+# Build and generated files
+dist/
+build/
+web-build/
+
+# React Native
+ios/Pods/
+android/.gradle/
+android/app/build/
+
+# Metro bundler cache
+.cache/
+
+# Firebase (if any sensitive keys exist)
+firebase-debug.log
