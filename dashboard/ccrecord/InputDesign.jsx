@@ -43,7 +43,7 @@ const styles = StyleSheet.create({
     display: "flex",
     backgroundColor: "#2A2A2E",
     flexDirection: "column",
-    width: 363,
+    width: 328,
     height: 544,
     borderRadius: 9,
     paddingTop: 32,
