@@ -1,14 +1,8 @@
+// LoginComponents.jsx
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  Image,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-  Linking,
-  Alert,
-} from "react-native";
+import { View, Text, Image, TextInput, TouchableOpacity, StyleSheet, Linking } from "react-native";
+import { signInWithEmailAndPassword } from "firebase/auth"; // Import signInWithEmailAndPassword
+import { auth } from "../firebaseConfig";  // Import auth from your firebaseConfig
 
 export const Logo = () => (
   <Image
@@ -31,13 +25,7 @@ export const LoginForm = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  
-    const users = [
-    { email: 'gem', password: '123456' },
-    { email: 'jazel', password: '123456' },
-    { email: 'bahalakayodyan', password: '123456' },
-  ];
-  
+
   const handleLogin = () => {
     if (!email || !password) {
       setError("Please enter both email and password.");
@@ -49,16 +37,15 @@ export const LoginForm = ({ navigation }) => {
       return;
     }
 
-    const foundUser = users.find(
-      user => user.email.toLowerCase() === email.toLowerCase() && user.password === password
-    );
-
-    if (foundUser) {
-      setError('');
-      navigation.navigate("Dashboard", { email: foundUser.email });
-    } else {
-      setError("Incorrect email or password.");
-    }
+    signInWithEmailAndPassword(auth, email, password)
+      .then(userCredential => {
+        setError('');
+        const user = userCredential.user;
+        navigation.navigate("Dashboard", { email: user.email });
+      })
+      .catch(() => {
+        setError("Invalid email or password.");
+      });
   };
 
   return (
@@ -113,7 +100,6 @@ export const FooterText = () => (
   </View>
 );
 
-// Styles (same as yours)
 const styles = StyleSheet.create({
   logo: {
     width: 162,
@@ -137,7 +123,7 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     width: "100%",
-    marginBottom: 28,
+    marginBottom: 20,
   },
   inputLabel: {
     color: "#CBB7B7",
@@ -147,12 +133,18 @@ const styles = StyleSheet.create({
   },
   input: {
     width: "100%",
-    height: 32,
+    height: 42,
     borderWidth: 1,
     borderColor: "#CBB7B7",
     borderRadius: 9,
     paddingHorizontal: 10,
     color: "#CBB7B7",
+  },
+  errorText: {
+    color: "#FF7A7A",
+    fontSize: 13,
+    marginBottom: 12,
+    fontWeight: "500",
   },
   loginButton: {
     width: 122,
@@ -162,6 +154,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginBottom: 30,
+    alignSelf: "center",
   },
   loginButtonText: {
     color: "#1E1E1E",
