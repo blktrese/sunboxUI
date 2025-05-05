@@ -44,7 +44,7 @@ export const LoginForm = ({ navigation }) => {
         navigation.navigate("Dashboard", { email: user.email });
       })
       .catch(() => {
-        setError("Invalid email or password.");
+        setError("Incorrect email or password.");
       });
   };
 
