@@ -1,63 +1,55 @@
 import React, { useState } from "react";
-import { View, StyleSheet, ScrollView, Dimensions } from "react-native";
+import { View, StyleSheet, ScrollView } from "react-native";
 import TimeframeSelector from "./TimeframeSelector";
 import AmountDisplay from "./AmountDisplay";
 import TransactionList from "./TransactionList";
 import { DateFilterIcon } from "./Icons";
+import WalletBalanceCard from "./WalletBalanceCard"; // Import the card
 
 const InputDesign = () => {
   const [selectedTimeframe, setSelectedTimeframe] = useState("Monthly");
 
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
-      <View style={styles.container}>
-        <TimeframeSelector
-          selected={selectedTimeframe}
-          onSelect={setSelectedTimeframe}
-        />
+      <WalletBalanceCard /> {/* Show at the top */}
 
-        <View style={styles.datePickerContainer}>
+      <View style={styles.card}>
+        <TimeframeSelector selected={selectedTimeframe} onSelect={setSelectedTimeframe} />
+        <View style={styles.dateFilter}>
           <DateFilterIcon />
         </View>
-
-        <View style={styles.contentContainer}>
-          <AmountDisplay amount="2,005.00" trend="increase" />
-          <TransactionList />
-        </View>
+        <AmountDisplay amount="2,005.00" trend="increase" />
+        <TransactionList />
       </View>
     </ScrollView>
   );
 };
 
-const { width } = Dimensions.get("window");
-
 const styles = StyleSheet.create({
   scrollContainer: {
-      flexGrow: 1,
-      backgroundColor: "#212124",
-      padding: 16,
-      paddingTop: 50,
-    },
-
-  container: {
-    display: "flex",
-    backgroundColor: "#2A2A2E",
-    flexDirection: "column",
-    width: 328,
-    height: 544,
-    borderRadius: 9,
-    paddingTop: 32,
-  },
-  datePickerContainer: {
-    display: "flex",
-    justifyContent: "center",
+    flexGrow: 1,
+    backgroundColor: "#212124",
     alignItems: "center",
-    marginTop: 8,
-
+    justifyContent: "flex-start",
+    paddingTop: 40,
+    paddingHorizontal: 20,
+    paddingBottom: 60,
   },
-  contentContainer: {
-    paddingHorizontal: 29,
-
+  card: {
+    backgroundColor: "#2A2A2E",
+    width: 328,
+    borderRadius: 20,
+    padding: 20,
+    marginTop: 24,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 5,
+  },
+  dateFilter: {
+    alignItems: "center",
+    marginVertical: 10,
   },
 });
 
