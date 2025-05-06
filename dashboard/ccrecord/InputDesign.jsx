@@ -4,14 +4,14 @@ import TimeframeSelector from "./TimeframeSelector";
 import AmountDisplay from "./AmountDisplay";
 import TransactionList from "./TransactionList";
 import { DateFilterIcon } from "./Icons";
-import WalletBalanceCard from "./WalletBalanceCard"; // Import the card
+import WalletBalanceCard from "./WalletBalanceCard";
 
 const InputDesign = () => {
   const [selectedTimeframe, setSelectedTimeframe] = useState("Monthly");
 
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
-      <WalletBalanceCard /> {/* Show at the top */}
+      <WalletBalanceCard /> 
 
       <View style={styles.card}>
         <TimeframeSelector selected={selectedTimeframe} onSelect={setSelectedTimeframe} />
