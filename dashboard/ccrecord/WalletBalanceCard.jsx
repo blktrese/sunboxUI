@@ -1,7 +1,28 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, Image, StyleSheet } from 'react-native';
+import { supabase } from '../../supabaseClient'; 
 
 const WalletBalanceCard = () => {
+  const [totalCoins, setTotalCoins] = useState(0);
+
+  useEffect(() => {
+    const fetchTotalCoins = async () => {
+      const { data, error } = await supabase
+        .from('coin_logs')
+        .select('daily_total');
+
+      if (error) {
+        console.error('Error fetching coins:', error);
+        return;
+      }
+
+      const total = data.reduce((sum, row) => sum + (row.daily_total || 0), 0);
+      setTotalCoins(total);
+    };
+
+    fetchTotalCoins();
+  }, []);
+
   return (
     <View style={styles.card}>
       <Image
@@ -12,7 +33,7 @@ const WalletBalanceCard = () => {
         accessibilityLabel="Wallet Icon"
       />
       <Text style={styles.title}>Total Amount Collected</Text>
-      <Text style={styles.amount}>₱ 0.00</Text>
+      <Text style={styles.amount}>₱ {totalCoins}.00</Text>
     </View>
   );
 };
@@ -39,14 +60,12 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   title: {
-    fontFamily: 'Instrument Sans',
     fontWeight: '700',
     fontSize: 16,
     color: '#2A2A2E',
     marginBottom: 4,
   },
   amount: {
-    fontFamily: 'Instrument Sans',
     fontWeight: '400',
     fontSize: 32,
     color: '#2A2A2E',
