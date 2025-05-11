@@ -9,14 +9,15 @@ import { View, StyleSheet } from 'react-native';
 
 const Stack = createNativeStackNavigator();
 
-export default function App() {
-  return (
+export default function App() {  return (
     <NavigationContainer>
       <View style={styles.appContainer}>
         <Stack.Navigator initialRouteName="Login" screenOptions={{ headerShown: false }}>
           <Stack.Screen name="Login" component={LoginScreen} />
           <Stack.Screen name="LoginError" component={LoginError} />
           <Stack.Screen name="Dashboard" component={Dashboard} />
+          <Stack.Screen name="Home" component={Dashboard} />
+          <Stack.Screen name="About" component={Dashboard} />
         </Stack.Navigator>
       </View>
     </NavigationContainer>
