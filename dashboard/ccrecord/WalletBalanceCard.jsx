@@ -9,14 +9,14 @@ const WalletBalanceCard = () => {
     const fetchTotalCoins = async () => {
       const { data, error } = await supabase
         .from('coin_logs')
-        .select('coin_value');
+        .select('daily_total');
 
       if (error) {
         console.error('Error fetching coins:', error);
         return;
       }
 
-      const total = data.reduce((sum, row) => sum + (row.coin_value || 0), 0);
+      const total = data.reduce((sum, row) => sum + (row.daily_total || 0), 0);
       setTotalCoins(total);
     };
 
