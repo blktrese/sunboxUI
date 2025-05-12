@@ -14,40 +14,38 @@ const SidebarNavigation = ({ onNavigation }) => {
 
     const handleNavigation = (route) => {
         setActiveItem(route);
-        // Call the navigation callback if provided
         if (onNavigation) {
             onNavigation(route);
         }
     };
+
     return (
         <View style={styles.container}>
             <View style={styles.content}>
                 <Logo />
                 <View style={styles.navigationContainer}>
-                    <View style={styles.navItems}>
-                        <NavigationItem
-                            iconComponent={<HomeIcon />}
-                            text="Home"
-                            isActive={activeItem === "home"}
-                            onPress={() => handleNavigation("home")}
-                        />
-                        <NavigationItem
-                            iconComponent={<AboutUsIcon />}
-                            text="About Us"
-                            isActive={activeItem === "about"}
-                            onPress={() => handleNavigation("about")}
-                        />
-                    </View>
-                    <Divider />
-                    <View style={styles.logoutContainer}>
-                        <LogoutButton
-                            onPress={() => {
-                                if (onNavigation) {
-                                    onNavigation("logout");
-                                }
-                            }}
-                        />
-                    </View>
+                    <NavigationItem
+                        iconComponent={<HomeIcon />}
+                        text="Home"
+                        isActive={activeItem === "home"}
+                        onPress={() => handleNavigation("home")}
+                    />
+                    <NavigationItem
+                        iconComponent={<AboutUsIcon />}
+                        text="About Us"
+                        isActive={activeItem === "about"}
+                        onPress={() => handleNavigation("about")}
+                    />
+                </View>
+                <Divider />
+                <View style={styles.logoutContainer}>
+                    <LogoutButton
+                        onPress={() => {
+                            if (onNavigation) {
+                                onNavigation("logout");
+                            }
+                        }}
+                    />
                 </View>
             </View>
         </View>
@@ -59,6 +57,7 @@ const styles = StyleSheet.create({
         display: "flex",
         backgroundColor: "#1D1C1F",
         height: "100%",
+        marginTop: -50,
     },
     content: {
         width: 331,
@@ -68,11 +67,6 @@ const styles = StyleSheet.create({
     },
     navigationContainer: {
         marginTop: 34,
-    },
-    navItems: {
-        display: "flex",
-        flexDirection: "column",
-        gap: 21,
     },
     logoutContainer: {
         marginTop: 10,
