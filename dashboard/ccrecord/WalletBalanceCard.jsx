@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Image, StyleSheet } from 'react-native';
-import { supabase } from '../../supabaseClient'; 
+import { supabase } from '../../supabaseClient';
 
 const WalletBalanceCard = () => {
   const [totalCoins, setTotalCoins] = useState(0);
@@ -45,7 +45,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     paddingVertical: 24,
     paddingHorizontal: 16,
-    marginTop: 24,
+    marginTop: -20,
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: '#000',
