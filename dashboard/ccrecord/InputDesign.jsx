@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import {
     View,
     StyleSheet,
-    ScrollView,
     SafeAreaView,
     StatusBar,
     Platform,
@@ -26,7 +25,7 @@ const InputDesign = () => {
             />
             <SafeAreaView style={styles.container}>
                 <Header />
-                <ScrollView contentContainerStyle={styles.scrollContainer}>
+                <View style={styles.contentContainer}>
                     <WalletBalanceCard />
 
                     <View style={styles.card}>
@@ -40,7 +39,7 @@ const InputDesign = () => {
                         <AmountDisplay amount="2,005.00" trend="increase" />
                         <TransactionList />
                     </View>
-                </ScrollView>
+                </View>
             </SafeAreaView>
         </>
     );
@@ -50,16 +49,16 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: "#212124",
-        paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0, // Add padding for status bar on Android
+        paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
     },
-    scrollContainer: {
-        flexGrow: 1,
+    contentContainer: {
+        flex: 1,
         backgroundColor: "#212124",
         alignItems: "center",
         justifyContent: "flex-start",
         paddingTop: 20,
         paddingHorizontal: 20,
-        paddingBottom: 60,
+        paddingBottom: 20,
     },
     card: {
         backgroundColor: "#2A2A2E",
