@@ -1,101 +1,156 @@
-import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import React, { useEffect, useState } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+} from "react-native";
+import dayjs from "dayjs";
+import isoWeek from "dayjs/plugin/isoWeek";
+import { supabase } from "../../supabaseClient";
 import { IncreaseIcon, DecreaseIcon } from "./Icons";
+import { FlatList } from "react-native";
 
-const TransactionItem = ({ date, amount, trend, isYesterday }) => {
-  return (
-    <View
-      style={[
-        styles.transactionItem,
-        isYesterday ? styles.yesterdayItem : null,
-      ]}
-    >
-      <View style={styles.transactionContent}>
-        <Text style={[styles.date, isYesterday ? styles.yesterdayDate : null]}>
-          {isYesterday ? "Yesterday" : ""}
+dayjs.extend(isoWeek);
+
+const TransactionItem = ({ date, amount, trend, isYesterday }) => (
+  <View style={[styles.item, isYesterday && styles.highlight]}>
+    {isYesterday && <Text style={styles.yesterdayLabel}>Yesterday</Text>}
+    <View style={styles.row}>
+      <Text style={styles.dateText}>{date}</Text>
+      <View style={styles.amountRow}>
+        <Text style={[styles.amount, isYesterday && styles.highlightAmount]}>
+          ₱ {amount.toLocaleString()}
         </Text>
-        <View style={styles.detailsRow}>
-          <Text style={styles.normalDate}>{date}</Text>
-          <View style={styles.amountContainer}>
-            <Text
-              style={[
-                styles.amount,
-                isYesterday ? styles.yesterdayAmount : null,
-              ]}
-            >
-              ₱ {amount}
-            </Text>
-            {trend &&
-              (trend === "increase" ? (
-                <IncreaseIcon size={25} />
-              ) : (
-                <DecreaseIcon size={24} />
-              ))}
-          </View>
-        </View>
+        {trend === "increase" ? (
+          <IncreaseIcon size={20} />
+        ) : (
+          <DecreaseIcon size={20} />
+        )}
       </View>
     </View>
-  );
-};
+  </View>
+);
 
-const TransactionList = () => {
-  const transactions = [
-    {
-      date: "02 / 03 / 2025",
-      amount: "1,780.00",
-      trend: "increase",
-      isYesterday: true,
-    },
-    { date: "02 / 02 / 2025", amount: "1,210.00", trend: "decrease" },
-    { date: "02 / 01 / 2025", amount: "1,455.00", trend: "increase" },
-  ];
+const TransactionList = ({ selectedTimeframe }) => {
+  const [transactions, setTransactions] = useState([]);
 
-  return (
-    <View style={styles.container}>
-      {transactions.map((transaction, index) => (
-        <TransactionItem key={index} {...transaction} />
-      ))}
-    </View>
-  );
+  useEffect(() => {
+    const fetchCoinLogs = async () => {
+      const { data, error } = await supabase
+        .from("coin_logs")
+        .select("timestamp, daily_total");
+
+      if (error) {
+        console.error("Error fetching coin logs:", error);
+        return;
+      }
+
+      const grouped = {};
+
+      data.forEach(({ timestamp, daily_total }) => {
+        const date = dayjs(timestamp);
+        let key = "";
+
+        if (selectedTimeframe === "Daily") {
+          key = date.format("YYYY-MM-DD");
+        } else if (selectedTimeframe === "Weekly") {
+          key = `${date.isoWeekYear()}-W${date.isoWeek()}`;
+        } else if (selectedTimeframe === "Monthly") {
+          key = date.format("YYYY-MM");
+        }
+
+        grouped[key] = (grouped[key] || 0) + daily_total;
+      });
+
+const sortedKeys = Object.keys(grouped).sort((a, b) => (a < b ? 1 : -1));
+const todayKey = dayjs().format("YYYY-MM-DD");
+const filteredKeys =
+  selectedTimeframe === "Daily"
+    ? sortedKeys.filter((key) => key !== todayKey)
+    : sortedKeys;
+
+const result = filteredKeys.map((key, index) => {
+  const current = grouped[key];
+  const prev = grouped[filteredKeys[index + 1]] || 0;
+  const trend = current >= prev ? "increase" : "decrease";
+
+  let displayDate = key;
+  if (selectedTimeframe === "Weekly") {
+    const [year, week] = key.split("-W");
+    displayDate = `Week ${week}, ${year}`;
+  } else if (selectedTimeframe === "Monthly") {
+    displayDate = dayjs(key + "-01").format("MMMM YYYY");
+  }
+
+  return {
+    date: displayDate,
+    amount: current,
+    trend,
+    rawKey: key,
+  };
+});
+
+if (selectedTimeframe === "Daily" && result.length > 0) {
+  result[0].isYesterday = true;
+}
+
+
+      setTransactions(result);
+    };
+
+    fetchCoinLogs();
+  }, [selectedTimeframe]);
+
+return (
+  <FlatList
+    data={transactions}
+    keyExtractor={(item, index) => item.rawKey || index.toString()}
+    renderItem={({ item }) => <TransactionItem {...item} />}
+    contentContainerStyle={styles.list}
+    style={styles.flatListContainer}
+    showsVerticalScrollIndicator={false}
+  />
+);
 };
 
 const styles = StyleSheet.create({
-  container: {
-    marginTop: 33,
+  flatListContainer: {
+    marginTop: 20,
+    paddingHorizontal: 4,
   },
-  transactionItem: {
-    padding: 12,
-    backgroundColor: "transparent",
+
+  list: {
+    paddingBottom: 20,
   },
-  yesterdayItem: {
+  item: {
+    paddingVertical: 12,
+    paddingHorizontal: 10,
+    borderBottomColor: "#3A3A3E",
+    borderBottomWidth: 1,
+  },
+  highlight: {
     backgroundColor: "#1D1C1F",
-    padding: 15,
+    borderRadius: 9,
   },
-  transactionContent: {
-    gap: 2,
+  yesterdayLabel: {
+    color: "#DA9362",
+    fontSize: 12,
+    fontWeight: "600",
+    marginBottom: 4,
+    fontFamily: "Instrument Sans",
   },
-  detailsRow: {
+  row: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
   },
-  date: {
+  dateText: {
     color: "#CBB7B7",
     fontSize: 12,
-    fontWeight: "400",
     fontFamily: "Instrument Sans",
   },
-  yesterdayDate: {
-    color: "#DA9362",
-    fontSize: 13,
-  },
-  normalDate: {
-    color: "#CBB7B7",
-    fontSize: 12,
-    fontWeight: "400",
-    fontFamily: "Instrument Sans",
-  },
-  amountContainer: {
+  amountRow: {
     flexDirection: "row",
     alignItems: "center",
     gap: 4,
@@ -103,12 +158,13 @@ const styles = StyleSheet.create({
   amount: {
     color: "#CBB7B7",
     fontSize: 14,
-    fontWeight: "400",
+    fontWeight: "500",
     fontFamily: "Instrument Sans",
   },
-  yesterdayAmount: {
-    fontSize: 21,
+  highlightAmount: {
+    fontSize: 18,
     fontWeight: "700",
+    color: "#DA9362",
   },
 });
 
