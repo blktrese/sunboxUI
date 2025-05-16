@@ -133,7 +133,7 @@ const styles = StyleSheet.create({
         bottom: 0,
         width: 331,
         backgroundColor: "#1D1C1F",
-        right: 0, // Position from right side
+        right: -50, // Position from right side
     },
 });
 
