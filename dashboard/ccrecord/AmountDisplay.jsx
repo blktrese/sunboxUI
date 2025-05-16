@@ -1,19 +1,69 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet } from "react-native";
-import { IncreaseIcon } from "./Icons";
+import { supabase } from "../../supabaseClient";
+import dayjs from "dayjs";
+import isoWeek from "dayjs/plugin/isoWeek";
+import { IncreaseIcon, DecreaseIcon } from "./Icons";
 
-const AmountDisplay = ({ amount, trend }) => {
+dayjs.extend(isoWeek);
+
+const AmountDisplay = ({ selectedTimeframe }) => {
+  const [amount, setAmount] = useState(0);
+  const [trend, setTrend] = useState("increase");
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const { data, error } = await supabase
+        .from("coin_logs")
+        .select("timestamp, daily_total");
+
+      if (error) {
+        console.error("Error fetching data:", error);
+        return;
+      }
+
+      const grouped = {};
+      data.forEach(({ timestamp, daily_total }) => {
+        const date = dayjs(timestamp);
+        let key = "";
+
+        if (selectedTimeframe === "Daily") key = date.format("YYYY-MM-DD");
+        else if (selectedTimeframe === "Weekly") key = `${date.isoWeekYear()}-W${date.isoWeek()}`;
+        else if (selectedTimeframe === "Monthly") key = date.format("YYYY-MM");
+
+        grouped[key] = (grouped[key] || 0) + daily_total;
+      });
+
+      const sorted = Object.keys(grouped).sort((a, b) => (a < b ? 1 : -1));
+      const current = grouped[sorted[0]] || 0;
+      const previous = grouped[sorted[1]] || 0;
+
+      setAmount(current);
+      setTrend(current >= previous ? "increase" : "decrease");
+    };
+
+    fetchData();
+  }, [selectedTimeframe]);
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <View style={styles.titleContainer}>
-          <Text style={styles.title}>Daily Amount Collected</Text>
+          <Text style={styles.title}>
+            {selectedTimeframe} Amount Collected
+          </Text>
         </View>
         <View style={styles.iconContainer}>
-          <IncreaseIcon />
+          {trend === "increase" ? (
+            <IncreaseIcon size={30} />
+          ) : (
+            <DecreaseIcon size={26} />
+          )}
         </View>
       </View>
-      <Text style={styles.amount}>₱ {amount}</Text>
+      <Text style={styles.amount}>
+        ₱ {amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+      </Text>
     </View>
   );
 };
