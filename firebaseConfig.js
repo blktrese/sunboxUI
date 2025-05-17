@@ -1,6 +1,6 @@
 // firebaseConfig.js
 import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";  // Import getAuth for authentication
+import { initializeAuth, getReactNativePersistence } from "firebase/auth";
 //import { getAnalytics } from "firebase/analytics"; // This is for analytics, if you use it
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
