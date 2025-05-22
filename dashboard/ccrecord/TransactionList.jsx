@@ -1,31 +1,27 @@
 import React, { useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-} from "react-native";
+import { View, Text, StyleSheet, FlatList } from "react-native";
 import dayjs from "dayjs";
 import isoWeek from "dayjs/plugin/isoWeek";
 import { supabase } from "../../supabaseClient";
-import { IncreaseIcon, DecreaseIcon } from "./Icons";
-import { FlatList } from "react-native";
+import { IncreaseIcon, DecreaseIcon, NeutralIcon } from "./Icons";
 
 dayjs.extend(isoWeek);
 
-const TransactionItem = ({ date, amount, trend, isYesterday }) => (
-  <View style={[styles.item, isYesterday && styles.highlight]}>
-    {isYesterday && <Text style={styles.yesterdayLabel}>Yesterday</Text>}
+const TransactionItem = ({ date, amount, trend, highlightLabel }) => (
+  <View style={[styles.item, highlightLabel && styles.highlight]}>
+    {highlightLabel && <Text style={styles.highlightLabel}>{highlightLabel}</Text>}
     <View style={styles.row}>
       <Text style={styles.dateText}>{date}</Text>
       <View style={styles.amountRow}>
-        <Text style={[styles.amount, isYesterday && styles.highlightAmount]}>
+        <Text style={[styles.amount, highlightLabel && styles.highlightAmount]}>
           ₱ {amount.toLocaleString()}
         </Text>
         {trend === "increase" ? (
           <IncreaseIcon size={20} />
-        ) : (
+        ) : trend === "decrease" ? (
           <DecreaseIcon size={20} />
+        ) : (
+          <NeutralIcon size={20} />
         )}
       </View>
     </View>
@@ -36,7 +32,7 @@ const TransactionList = ({ selectedTimeframe }) => {
   const [transactions, setTransactions] = useState([]);
 
   useEffect(() => {
-    const fetchCoinLogs = async () => {
+    const fetchTransactions = async () => {
       const { data, error } = await supabase
         .from("coin_logs")
         .select("timestamp, daily_total");
@@ -46,80 +42,114 @@ const TransactionList = ({ selectedTimeframe }) => {
         return;
       }
 
+      const now = dayjs();
       const grouped = {};
+      const result = [];
 
-      data.forEach(({ timestamp, daily_total }) => {
-        const date = dayjs(timestamp);
-        let key = "";
+      if (selectedTimeframe === "Daily") {
+        const days = Array.from({ length: 6 }, (_, i) =>
+          now.subtract(i+1, "day").format("YYYY-MM-DD")
+        );
 
-        if (selectedTimeframe === "Daily") {
-          key = date.format("YYYY-MM-DD");
-        } else if (selectedTimeframe === "Weekly") {
-          key = `${date.isoWeekYear()}-W${date.isoWeek()}`;
-        } else if (selectedTimeframe === "Monthly") {
-          key = date.format("YYYY-MM");
-        }
+        data.forEach(({ timestamp, daily_total }) => {
+          const date = dayjs(timestamp).format("YYYY-MM-DD");
+          grouped[date] = (grouped[date] || 0) + daily_total;
+        });
 
-        grouped[key] = (grouped[key] || 0) + daily_total;
-      });
+        days.forEach((dateStr, index) => {
+          const current = grouped[dateStr] ?? 0;
+          const prev = index < days.length - 1 ? grouped[days[index + 1]] ?? null : null;
 
-const sortedKeys = Object.keys(grouped).sort((a, b) => (a < b ? 1 : -1));
-const todayKey = dayjs().format("YYYY-MM-DD");
-const filteredKeys =
-  selectedTimeframe === "Daily"
-    ? sortedKeys.filter((key) => key !== todayKey)
-    : sortedKeys;
+          let trend = "neutral";
+          if (prev !== null) {
+            if (current > prev) trend = "increase";
+            else if (current < prev) trend = "decrease";
+          }
 
-const result = filteredKeys.map((key, index) => {
-  const current = grouped[key];
-  const prev = grouped[filteredKeys[index + 1]] || 0;
-  const trend = current >= prev ? "increase" : "decrease";
+          const highlightLabel = index === 0 ? "Yesterday" : null;
 
-  let displayDate = key;
-  if (selectedTimeframe === "Weekly") {
-    const [year, week] = key.split("-W");
-    displayDate = `Week ${week}, ${year}`;
-  } else if (selectedTimeframe === "Monthly") {
-    displayDate = dayjs(key + "-01").format("MMMM YYYY");
-  }
+          result.push({
+            rawKey: dateStr,
+            date: dayjs(dateStr).format("MMM D, YYYY"),
+            amount: current,
+            trend,
+            highlightLabel,
+          });
+        });
+      } else {
+        data.forEach(({ timestamp, daily_total }) => {
+          const date = dayjs(timestamp);
+          let key = selectedTimeframe === "Weekly"
+            ? `${date.isoWeekYear()}-W${date.isoWeek()}`
+            : date.format("YYYY-MM");
 
-  return {
-    date: displayDate,
-    amount: current,
-    trend,
-    rawKey: key,
-  };
-});
+          grouped[key] = (grouped[key] || 0) + daily_total;
+        });
 
-if (selectedTimeframe === "Daily" && result.length > 0) {
-  result[0].isYesterday = true;
-}
+        const thisMonthKey = dayjs().format("YYYY-MM");
 
+        const sortedKeys = Object.keys(grouped)
+          .filter((key) => selectedTimeframe === "Monthly" ? key !== thisMonthKey : true)
+          .sort((a, b) => (a < b ? 1 : -1))
+          .slice(0, 5);
+
+        sortedKeys.forEach((key, index) => {
+          const current = grouped[key] ?? 0;
+          const prev = index < sortedKeys.length - 1 ? grouped[sortedKeys[index + 1]] ?? null : null;
+
+          let trend = "neutral";
+          if (prev !== null) {
+            if (current > prev) trend = "increase";
+            else if (current < prev) trend = "decrease";
+          }
+
+          let displayDate = key;
+          if (selectedTimeframe === "Weekly") {
+            const [year, week] = key.split("-W");
+            displayDate = `Week ${week}, ${year}`;
+          } else {
+            displayDate = dayjs(key + "-01").format("MMMM YYYY");
+          }
+
+          const highlightLabel =
+            index === 0
+              ? selectedTimeframe === "Weekly"
+                ? "Last Week"
+                : "Last Month"
+              : null;
+
+          result.push({
+            rawKey: key,
+            date: displayDate,
+            amount: current,
+            trend,
+            highlightLabel,
+          });
+        });
+      }
 
       setTransactions(result);
     };
 
-    fetchCoinLogs();
+    fetchTransactions();
   }, [selectedTimeframe]);
 
-return (
-  <FlatList
-    data={transactions}
-    keyExtractor={(item, index) => item.rawKey || index.toString()}
-    renderItem={({ item }) => <TransactionItem {...item} />}
-    contentContainerStyle={styles.list}
-    style={styles.flatListContainer}
-    showsVerticalScrollIndicator={false}
-  />
-);
+  return (
+    <FlatList
+      data={transactions}
+      keyExtractor={(item, index) => item.rawKey || index.toString()}
+      renderItem={({ item }) => <TransactionItem {...item} />}
+      contentContainerStyle={styles.list}
+      style={styles.flatListContainer}
+      showsVerticalScrollIndicator={false}
+    />
+  );
 };
 
 const styles = StyleSheet.create({
   flatListContainer: {
-    marginTop: 20,
-    paddingHorizontal: 4,
+    marginTop: 12,
   },
-
   list: {
     paddingBottom: 20,
   },
@@ -133,7 +163,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#1D1C1F",
     borderRadius: 9,
   },
-  yesterdayLabel: {
+  highlightLabel: {
     color: "#DA9362",
     fontSize: 12,
     fontWeight: "600",
