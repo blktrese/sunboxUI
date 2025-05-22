@@ -56,6 +56,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#212124",
     paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
+
   },
   contentContainer: {
     flex: 1,
@@ -65,6 +66,7 @@ const styles = StyleSheet.create({
     paddingTop: 20,
     paddingHorizontal: 20,
     paddingBottom: 20,
+
   },
   card: {
     backgroundColor: "#2A2A2E",
@@ -77,6 +79,9 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 6,
     elevation: 5,
+      borderWidth: 2,           // Add border width
+      borderColor: "#DA9362",   // Set border color
+      height: 450,
   },
   dateFilter: {
     alignItems: "center",
