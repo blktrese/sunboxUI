@@ -21,6 +21,15 @@ const TimeframeSelector = ({ selected, onSelect }) => {
 
 const styles = StyleSheet.create({
   container: {
+    //flexDirection: "row",
+    //backgroundColor: "#1E1E1E",
+    //borderRadius: 9,
+    //overflow: "hidden",
+    //height: 40,
+    //marginBottom: 12,
+    //display: "flex",
+       // width: "100%",
+        //height: 45,
     display: "flex",
     flexDirection: "row",
     width: "100%",
@@ -33,8 +42,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   selectedOption: {
-    backgroundColor: "#1E1E1E",
-    borderRadius: 9,
+    backgroundColor: "#DA9361",
+        borderRadius: 9,
   },
   text: {
     color: "#CBB7B7",
