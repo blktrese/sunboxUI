@@ -48,7 +48,7 @@ const TransactionList = ({ selectedTimeframe }) => {
 
       if (selectedTimeframe === "Daily") {
         const days = Array.from({ length: 6 }, (_, i) =>
-          now.subtract(i+1, "day").format("YYYY-MM-DD")
+          now.subtract(i + 1, "day").format("YYYY-MM-DD")
         );
 
         data.forEach(({ timestamp, daily_total }) => {
@@ -58,13 +58,12 @@ const TransactionList = ({ selectedTimeframe }) => {
 
         days.forEach((dateStr, index) => {
           const current = grouped[dateStr] ?? 0;
-          const prev = index < days.length - 1 ? grouped[days[index + 1]] ?? null : null;
+          const prev =
+            index < days.length - 1 ? grouped[days[index + 1]] ?? 0 : 0;
 
           let trend = "neutral";
-          if (prev !== null) {
-            if (current > prev) trend = "increase";
-            else if (current < prev) trend = "decrease";
-          }
+          if (current > prev) trend = "increase";
+          else if (current < prev) trend = "decrease";
 
           const highlightLabel = index === 0 ? "Yesterday" : null;
 
@@ -79,29 +78,35 @@ const TransactionList = ({ selectedTimeframe }) => {
       } else {
         data.forEach(({ timestamp, daily_total }) => {
           const date = dayjs(timestamp);
-          let key = selectedTimeframe === "Weekly"
-            ? `${date.isoWeekYear()}-W${date.isoWeek()}`
-            : date.format("YYYY-MM");
+          let key =
+            selectedTimeframe === "Weekly"
+              ? `${date.isoWeekYear()}-W${date.isoWeek()}`
+              : date.format("YYYY-MM");
 
           grouped[key] = (grouped[key] || 0) + daily_total;
         });
 
         const thisMonthKey = dayjs().format("YYYY-MM");
 
+        const currentWeekKey = `${dayjs().isoWeekYear()}-W${dayjs().isoWeek()}`;
         const sortedKeys = Object.keys(grouped)
-          .filter((key) => selectedTimeframe === "Monthly" ? key !== thisMonthKey : true)
+          .filter((key) =>
+            selectedTimeframe === "Weekly" ? key !== currentWeekKey : key !== thisMonthKey
+          )
           .sort((a, b) => (a < b ? 1 : -1))
           .slice(0, 5);
 
+
         sortedKeys.forEach((key, index) => {
           const current = grouped[key] ?? 0;
-          const prev = index < sortedKeys.length - 1 ? grouped[sortedKeys[index + 1]] ?? null : null;
+          const prev =
+            index < sortedKeys.length - 1
+              ? grouped[sortedKeys[index + 1]] ?? 0
+              : 0;
 
           let trend = "neutral";
-          if (prev !== null) {
-            if (current > prev) trend = "increase";
-            else if (current < prev) trend = "decrease";
-          }
+          if (current > prev) trend = "increase";
+          else if (current < prev) trend = "decrease";
 
           let displayDate = key;
           if (selectedTimeframe === "Weekly") {
@@ -131,7 +136,9 @@ const TransactionList = ({ selectedTimeframe }) => {
       setTransactions(result);
     };
 
-    fetchTransactions();
+    fetchTransactions().catch((err) =>
+      console.error("Unexpected error in fetchTransactions:", err)
+    );
   }, [selectedTimeframe]);
 
   return (
