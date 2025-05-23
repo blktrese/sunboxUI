@@ -39,21 +39,23 @@ const WalletBalanceCard = () => {
 };
 
 const styles = StyleSheet.create({
-  card: {
-    backgroundColor: '#DA9362',
-    width: 328,
-    borderRadius: 20,
-    paddingVertical: 24,
-    paddingHorizontal: 16,
-    marginTop: -20,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 6,
-    elevation: 5,
-  },
+card: {
+  backgroundColor: '#DA9362',
+  width: 328,
+  borderRadius: 20,
+  paddingVertical: 24,
+  paddingHorizontal: 16,
+  marginTop: -20,
+  alignItems: 'center',
+  justifyContent: 'center',
+  shadowColor: '#000',
+  shadowOffset: { width: 0, height: 2 },
+  shadowOpacity: 0.2,
+  shadowRadius: 6,
+  elevation: 5,
+  alignSelf: 'center',
+},
+
   walletIcon: {
     width: 48,
     height: 48,
