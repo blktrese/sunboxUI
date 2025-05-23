@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { supabase } from "../../supabaseClient";
 import dayjs from "dayjs";
@@ -8,86 +8,95 @@ const AmountDisplay = ({ selectedTimeframe }) => {
     const [amount, setAmount] = useState(0);
     const [trend, setTrend] = useState("neutral");
     const [percentChange, setPercentChange] = useState(null);
+    const intervalRef = useRef(null);
+
+    const fetchAmount = async () => {
+        const { data, error } = await supabase
+            .from("coin_logs")
+            .select("timestamp, coin_value");
+
+        if (error) {
+            console.error("Error fetching data:", error);
+            return;
+        }
+
+        const now = dayjs();
+        let currentTotal = 0;
+        let previousTotal = 0;
+
+        if (selectedTimeframe === "Daily") {
+            const today = now.startOf("day");
+            const yesterday = today.subtract(1, "day");
+
+            data.forEach((entry) => {
+                const ts = dayjs(entry.timestamp);
+                if (ts.isSame(today, "day")) currentTotal += entry.coin_value;
+                if (ts.isSame(yesterday, "day"))
+                    previousTotal += entry.coin_value;
+            });
+        } else if (selectedTimeframe === "Weekly") {
+            const thisWeekStart = now.startOf("isoWeek");
+            const lastWeekStart = thisWeekStart.subtract(1, "week");
+
+            data.forEach((entry) => {
+                const ts = dayjs(entry.timestamp);
+                if (ts.isAfter(lastWeekStart) && ts.isBefore(thisWeekStart))
+                    previousTotal += entry.coin_value;
+                if (
+                    ts.isSame(thisWeekStart, "day") ||
+                    ts.isAfter(thisWeekStart)
+                )
+                    currentTotal += entry.coin_value;
+            });
+        } else if (selectedTimeframe === "Monthly") {
+            const startOfThisMonth = now.startOf("month");
+            const startOfLastMonth = startOfThisMonth.subtract(1, "month");
+
+            data.forEach((entry) => {
+                const ts = dayjs(entry.timestamp);
+                if (
+                    ts.isAfter(startOfLastMonth) &&
+                    ts.isBefore(startOfThisMonth)
+                )
+                    previousTotal += entry.coin_value;
+                if (
+                    ts.isSame(startOfThisMonth, "day") ||
+                    ts.isAfter(startOfThisMonth)
+                )
+                    currentTotal += entry.coin_value;
+            });
+        }
+
+        setAmount(currentTotal);
+
+        if (previousTotal > 0) {
+            const change =
+                ((currentTotal - previousTotal) / previousTotal) * 100;
+            setPercentChange(change.toFixed(1));
+            setTrend(
+                change > 0 ? "increase" : change < 0 ? "decrease" : "neutral"
+            );
+        } else {
+            setPercentChange("—");
+            setTrend("neutral");
+        }
+    };
 
     useEffect(() => {
-        const fetchAmount = async () => {
-            const { data, error } = await supabase
-                .from("coin_logs")
-                .select("timestamp, coin_value");
+        // Initial fetch
+        fetchAmount();
 
-            if (error) {
-                console.error("Error fetching data:", error);
-                return;
-            }
+        // Set up the interval to fetch data every 3 seconds
+        intervalRef.current = setInterval(() => {
+            fetchAmount();
+        }, 3000);
 
-            const now = dayjs();
-            let currentTotal = 0;
-            let previousTotal = 0;
-
-            if (selectedTimeframe === "Daily") {
-                const today = now.startOf("day");
-                const yesterday = today.subtract(1, "day");
-
-                data.forEach((entry) => {
-                    const ts = dayjs(entry.timestamp);
-                    if (ts.isSame(today, "day"))
-                        currentTotal += entry.coin_value;
-                    if (ts.isSame(yesterday, "day"))
-                        previousTotal += entry.coin_value;
-                });
-            } else if (selectedTimeframe === "Weekly") {
-                const thisWeekStart = now.startOf("isoWeek");
-                const lastWeekStart = thisWeekStart.subtract(1, "week");
-
-                data.forEach((entry) => {
-                    const ts = dayjs(entry.timestamp);
-                    if (ts.isAfter(lastWeekStart) && ts.isBefore(thisWeekStart))
-                        previousTotal += entry.coin_value;
-                    if (
-                        ts.isSame(thisWeekStart, "day") ||
-                        ts.isAfter(thisWeekStart)
-                    )
-                        currentTotal += entry.coin_value;
-                });
-            } else if (selectedTimeframe === "Monthly") {
-                const startOfThisMonth = now.startOf("month");
-                const startOfLastMonth = startOfThisMonth.subtract(1, "month");
-
-                data.forEach((entry) => {
-                    const ts = dayjs(entry.timestamp);
-                    if (
-                        ts.isAfter(startOfLastMonth) &&
-                        ts.isBefore(startOfThisMonth)
-                    )
-                        previousTotal += entry.coin_value;
-                    if (
-                        ts.isSame(startOfThisMonth, "day") ||
-                        ts.isAfter(startOfThisMonth)
-                    )
-                        currentTotal += entry.coin_value;
-                });
-            }
-
-            setAmount(currentTotal);
-
-            if (previousTotal > 0) {
-                const change =
-                    ((currentTotal - previousTotal) / previousTotal) * 100;
-                setPercentChange(change.toFixed(1));
-                setTrend(
-                    change > 0
-                        ? "increase"
-                        : change < 0
-                        ? "decrease"
-                        : "neutral"
-                );
-            } else {
-                setPercentChange("—");
-                setTrend("neutral");
+        // Clean up the interval when the component unmounts or selectedTimeframe changes
+        return () => {
+            if (intervalRef.current) {
+                clearInterval(intervalRef.current);
             }
         };
-
-        fetchAmount();
     }, [selectedTimeframe]);
 
     const labelMap = {
