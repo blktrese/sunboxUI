@@ -4,21 +4,17 @@ import DeveloperColumn from './DeveloperColumn';
 
 const DeveloperList = () => {
   const leftColumnNames = [
-    'Dinglasan, Lycah Jazel',
-    'Facinal, Keith Ashlee',
-    'Frando, Kyle',
-    'Maala, Kim Ivan',
-    'Pilar, Ana Marie',
-  ];
-
-  const rightColumnNames = [
-    'Pineda, Gem',
-    'Rosario, Jon Ken',
-    'Sanchez, John Carlo',
-    'Sorrera, Gavvryl Shylana',
+    'Dinglasan, Lycah Jazel C.',
+    'Sanchez, John Carlo D.',
     'Trinidad, RJ Weiland',
   ];
 
+  const rightColumnNames = [
+    'Pineda, Gem N.',
+    'Rosario, Jon Ken',
+    'Sorrera, Gavvryl Shylana L.',
+
+  ];
   return (
     <View style={styles.container}>
       <DeveloperColumn names={leftColumnNames} color="#B0A1A1" />
