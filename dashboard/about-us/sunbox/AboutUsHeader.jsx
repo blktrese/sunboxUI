@@ -23,6 +23,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: '600',
     lineHeight: 22,
+    marginTop: 15,
   },
   titleContainer: {
     marginBottom: 12,
@@ -32,6 +33,7 @@ const styles = StyleSheet.create({
     fontSize: 47,
     fontWeight: '600',
     lineHeight: 46,
+    marginTop: -10,
   },
 });
 
