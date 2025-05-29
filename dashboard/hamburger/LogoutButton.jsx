@@ -1,5 +1,5 @@
 import React from "react";
-import { TouchableOpacity, View, StyleSheet, Alert, Text } from "react-native";
+import { TouchableOpacity, View, StyleSheet, Alert, Text, Image } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { auth } from "../../firebaseConfig";
 import { signOut } from "firebase/auth";
@@ -28,72 +28,28 @@ const LogoutButton = ({ onPress }) => {
     };
 
     return (
-        <TouchableOpacity style={styles.container} onPress={handleLogout}>
-            <View style={styles.iconContainer}>
-                <View style={styles.circle}>
-                    <View style={styles.logoutIcon}>
-                        <View style={styles.iconLine}></View>
-                        <View style={styles.iconArrow}></View>
-                    </View>
-                </View>
-            </View>
-            <Text style={styles.text}>Logout</Text>
-        </TouchableOpacity>
+            <TouchableOpacity style={styles.imageContainer} onPress={handleLogout}>
+                <Image
+                    source={{ uri: 'https://cdn.builder.io/api/v1/image/assets/TEMP/0621990275be8baa8bbf9b085bfbe7438ab389b2' }}
+                    style={styles.image}
+                    resizeMode="contain"
+                />
+            </TouchableOpacity>
     );
 };
 
 const styles = StyleSheet.create({
-    container: {
-        flexDirection: "row",
-        alignItems: "center",
-        gap: 16,
-        padding: 15,
-    },
-    iconContainer: {
-        width: 24,
-        height: 24,
-        justifyContent: "center",
-        alignItems: "center",
-    },
-    circle: {
-        width: 24,
-        height: 24,
-        borderRadius: 12,
-        backgroundColor: "#2F2E34",
-        justifyContent: "center",
-        alignItems: "center",
-    },
-    logoutIcon: {
-        width: 12,
-        height: 12,
-        position: "relative",
-    },
-    iconLine: {
-        position: "absolute",
-        width: 2,
-        height: 7,
-        backgroundColor: "#CBB7B7",
-        left: 5,
-        top: 0,
-    },
-    iconArrow: {
-        position: "absolute",
-        width: 6,
-        height: 6,
-        borderWidth: 2,
-        borderColor: "#CBB7B7",
-        borderRightWidth: 0,
-        borderBottomWidth: 0,
-        transform: [{ rotate: "-45deg" }],
-        bottom: 1,
-        left: 3,
-    },
-    text: {
-        color: "#CBB7B7",
-        fontFamily: "Instrument Sans",
-        fontSize: 17,
-        fontWeight: "600",
-    },
+  container: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 16,
+    padding: 15,
+  },
+  image: {
+    width: 126,
+    height: 25,
+    marginLeft: 12,
+  },
 });
 
 export default LogoutButton;

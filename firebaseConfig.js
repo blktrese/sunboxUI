@@ -1,7 +1,7 @@
 // firebaseConfig.js
 import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";  // Import getAuth for authentication
-import { getAnalytics } from "firebase/analytics"; // This is for analytics, if you use it
+import { initializeAuth, getReactNativePersistence } from "firebase/auth";
+//import { getAnalytics } from "firebase/analytics"; // This is for analytics, if you use it
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // Your web app's Firebase configuration
@@ -19,9 +19,13 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 
 // Initialize Firebase Authentication and export it
-export const auth = getAuth(app);  // Add this line to export `auth`
+//export const auth = getAuth(app);  // Add this line to export `auth`
+
+export const auth = initializeAuth(app, {
+  persistence: getReactNativePersistence(AsyncStorage)
+});
 
 // Initialize Firebase Analytics (Optional)
-const analytics = getAnalytics(app);
+//const analytics = getAnalytics(app);
 
 export default app;

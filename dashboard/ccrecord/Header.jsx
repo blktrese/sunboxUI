@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import {
     View,
     Image,
@@ -7,37 +7,71 @@ import {
     Modal,
     Animated,
     Text,
+    Platform, StatusBar,
     Dimensions,
 } from "react-native";
-import SidebarNavigation from "../hamburger/SidebarNavigation";
+import { useNavigation, useRoute } from "@react-navigation/native";
+import SidebarNavigation from '../hamburger/SidebarNavigation';
 
 const Header = () => {
+    const navigation = useNavigation();
+    const route = useRoute();
     const screenWidth = Dimensions.get("window").width;
-    const sidebarWidth = 331; // Width of the sidebar
+    const sidebarWidth = 290;
 
     const [sidebarVisible, setSidebarVisible] = useState(false);
-    // Starting position off-screen to the right (width of the sidebar)
     const [slideAnim] = useState(new Animated.Value(sidebarWidth));
+
+    // Reset animation value when sidebar visibility changes
+    useEffect(() => {
+        if (!sidebarVisible) {
+            slideAnim.setValue(sidebarWidth);
+        }
+    }, [sidebarVisible, slideAnim, sidebarWidth]);
+
     const toggleSidebar = () => {
         if (sidebarVisible) {
-            // Slide out animation to the right
             Animated.timing(slideAnim, {
-                toValue: sidebarWidth, // Full width of sidebar
+                toValue: sidebarWidth,
                 duration: 300,
-                useNativeDriver: true, // Enable native driver for better performance
+                useNativeDriver: true,
             }).start(() => {
                 setSidebarVisible(false);
             });
         } else {
             setSidebarVisible(true);
-            // Slide in animation from the right
             Animated.timing(slideAnim, {
                 toValue: 0,
                 duration: 300,
-                useNativeDriver: true, // Enable native driver for better performance
+                useNativeDriver: true,
             }).start();
         }
     };
+
+    const handleNavigation = (routeName) => {
+        toggleSidebar();
+
+        setTimeout(() => {
+            if (routeName === "home") {
+                navigation.navigate("Dashboard");
+            } else if (routeName === "about") {
+                navigation.navigate("AboutUs");
+            } else if (routeName === "logout") {
+                navigation.navigate("Login");
+            }
+        }, 300);
+    };
+
+    const getCurrentActiveRoute = () => {
+        const currentRoute = route.name;
+        if (currentRoute === "Dashboard") return "home";
+        if (currentRoute === "AboutUs") return "about";
+        return "home";
+    };
+
+
+    const isAboutScreen = route.name === "AboutUs";
+
     return (
         <View style={styles.header}>
             <View style={styles.logoContainer}>
@@ -49,19 +83,20 @@ const Header = () => {
                     resizeMode="contain"
                 />
             </View>
+
+            {/* Always show hamburger menu, but adjust behavior based on screen */}
             <TouchableOpacity
                 onPress={toggleSidebar}
                 style={styles.menuButton}
                 activeOpacity={0.7}
-                hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }} // Increase touch area
             >
                 <Text style={styles.menuIcon}>≡</Text>
             </TouchableOpacity>
+
             {sidebarVisible && (
                 <Modal
                     transparent={true}
                     visible={sidebarVisible}
-                    animationType="none"
                     onRequestClose={toggleSidebar}
                 >
                     <View style={styles.modalContainer}>
@@ -79,7 +114,8 @@ const Header = () => {
                             ]}
                         >
                             <SidebarNavigation
-                                onNavigation={() => toggleSidebar()}
+                                onNavigation={handleNavigation}
+                                activeRoute={getCurrentActiveRoute()}
                             />
                         </Animated.View>
                     </View>
@@ -90,30 +126,33 @@ const Header = () => {
 };
 
 const styles = StyleSheet.create({
-    header: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center",
-        padding: 16,
-        paddingTop: 20, // Add more top padding
-        backgroundColor: "#212124",
-        zIndex: 10, // Ensure it's above other components
-    },
+header: {
+  height: 70,
+  flexDirection: "row",
+  justifyContent: "space-between",
+  alignItems: "center", // center children vertically inside 100 height
+  paddingHorizontal: 16,
+  backgroundColor: "#212124",
+  zIndex: 10,
+},
     menuButton: {
         padding: 10,
-        zIndex: 20, // Make sure it's on top of everything
+        zIndex: 20,
+        //marginTop: -45,
     },
     menuIcon: {
         fontSize: 28,
         color: "#CBB7B7",
-        fontWeight: "bold",
+        //fontWeight: "bold",
     },
     logoContainer: {
-        alignItems: "flex-start",
+  justifyContent: "center", // center logo vertically inside container
+  height: "100%",
     },
     logo: {
         width: 140,
-        height: 24,
+        height: 40,
+        //marginTop: -40,
     },
     modalContainer: {
         flex: 1,
@@ -131,9 +170,9 @@ const styles = StyleSheet.create({
         position: "absolute",
         top: 0,
         bottom: 0,
-        width: 331,
+        width: 290,
         backgroundColor: "#1D1C1F",
-        right: 0, // Position from right side
+        right: 0,
     },
 });
 
