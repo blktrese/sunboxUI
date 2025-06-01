@@ -4,7 +4,6 @@ import { supabase } from "../../supabaseClient";
 
 const WalletBalanceCard = () => {
     const [totalCoins, setTotalCoins] = useState(0);
-
     useEffect(() => {
         const fetchTotalCoins = async () => {
             const { data, error } = await supabase
@@ -23,7 +22,14 @@ const WalletBalanceCard = () => {
             setTotalCoins(total);
         };
 
+        // Fetch immediately on mount
         fetchTotalCoins();
+
+        // Set up interval to fetch every 3 seconds
+        const interval = setInterval(fetchTotalCoins, 3000);
+
+        // Cleanup function to clear interval when component unmounts
+        return () => clearInterval(interval);
     }, []);
 
     return (
